@@ -21,7 +21,12 @@ import { v4 as uuid } from "uuid";
 import { Slide } from "./LeftColumnSlide";
 import { Reorder } from "framer-motion";
 
-export const LeftColumn = ({ slides, addNewSlide, handleSlidesReorder }) => {
+export const LeftColumn = ({
+    slides,
+    addNewSlide,
+    handleSlidesReorder,
+    handleSlideSelect,
+}) => {
     const onNewSlideClick = () => {
         addNewSlide(uuid());
     };
@@ -48,7 +53,12 @@ export const LeftColumn = ({ slides, addNewSlide, handleSlidesReorder }) => {
                         values={slides}
                     >
                         {slides.map((slide, idx) => (
-                            <Slide index={idx} key={slide.id} slide={slide} />
+                            <Slide
+                                index={idx}
+                                key={slide.id}
+                                slide={slide}
+                                handleSlideSelect={handleSlideSelect}
+                            />
                         ))}
                     </Reorder.Group>
                 )}

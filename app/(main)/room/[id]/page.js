@@ -50,7 +50,6 @@ const Room = () => {
     const clientUniqueId = useMemo(() => {
         return uuid();
     }, []);
-    // const [slides, setSlides] = useState([]);
 
     const handleSlidesReorder = (newValue) => {
         // console.log("param", newValue);
@@ -106,11 +105,20 @@ const Room = () => {
         [provider.doc]
     );
 
+    const handleSlideSelect = (id) => {
+        provider.awareness.setLocalStateField("currentSlideId", id);
+        setCurrentSlideId(id);
+    };
+
     useEffect(() => {
         const handleSync = () => {
             console.log("Yjs synced!");
             if (slidesArray.length > 0) {
-                setCurrentSlideId(slidesArray.get(0).id);
+                // setCurrentSlideId(slidesArray.get(0).id);
+                provider.awareness.setLocalStateField(
+                    "currentSlideId",
+                    slidesArray.get(0).id
+                );
             } else {
                 // Only create a slide if none exists
                 const id = uuid();
@@ -118,7 +126,8 @@ const Room = () => {
                 incrementSlideOffsetKey();
                 const slideText = provider.doc.get(id, Y.XmlText);
                 slideText.insert(0, "New Slide Content");
-                setCurrentSlideId(id);
+                // setCurrentSlideId(id);
+                provider.awareness.setLocalStateField("currentSlideId", id);
             }
             setSlides(slidesArray.toArray());
             // console.log("Slides array after sync:", slidesArray.toArray());
@@ -146,13 +155,20 @@ const Room = () => {
 
         slideText.insert(0, "New Slide Content");
 
-        setCurrentSlideId(newSlideId);
+        // setCurrentSlideId(newSlideId);
     };
 
     // ===================================================================================================
 
     const editor = useMemo(() => {
-        const sharedType = provider.doc.get(`${currentSlideId}`, Y.XmlText);
+        // const sharedType = provider.doc.get(`${currentSlideId}`, Y.XmlText);
+        const sharedType = provider.doc.get(
+            `${
+                provider.awareness.getLocalState()["currentSlideId"] ||
+                "default"
+            }`,
+            Y.XmlText
+        );
 
         sharedType.observe(() => {
             console.log("observed");
@@ -199,6 +215,7 @@ const Room = () => {
         <div className="flex h-full w-full pt-[40px] flex-1">
             <div className="h-screen bg-slate-300 basis-[200px] w-[200px] shrink-0 fixed overflow-y-auto  left-0 z-10">
                 <LeftColumn
+                    handleSlideSelect={handleSlideSelect}
                     slides={slides}
                     addNewSlide={addNewSlide}
                     handleSlidesReorder={handleSlidesReorder}
